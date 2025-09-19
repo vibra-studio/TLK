@@ -947,34 +947,7 @@
     </script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const discordPopupSeen = localStorage.getItem('discordPopupSeen');
-
-            if (!discordPopupSeen) {
-                const popup = document.createElement('div');
-                popup.className = 'fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75';
-                popup.innerHTML = `
-                    <div class="bg-gray-800 rounded-lg p-6 text-center space-y-4 max-w-sm">
-                        <h2 class="text-xl font-bold text-red-400">TLK has a Discord Server!</h2>
-                        <p class="text-gray-300">Join the community for updates and discussions <3</p>
-                        <a href="#" target="_blank" 
-                            class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg text-white inline-block">
-                            Join Now
-                        </a>
-                        <button id="closePopup" 
-                            class="text-gray-500 hover:text-gray-300 focus:outline-none">
-                            Dismiss
-                        </button>
-                    </div>
-                `;
-                document.body.appendChild(popup);
-
-                document.getElementById('closePopup').addEventListener('click', function() {
-                    popup.style.display = 'none';
-                    localStorage.setItem('discordPopupSeen', 'true');
-                });
-            }
-        });
+           
 
         document.addEventListener('alpine:init', () => {
             Alpine.store('contextMenu', {
@@ -1040,19 +1013,17 @@
                     });
                 },
 
-                async fetchGenres() {
-                    const baseUrl = 'https://api.themoviedb.org/3';
-                    const endpoint = this.currentTab === 'movies' ? 'genre/movie/list' : 'genre/tv/list';
-                    const url = `${baseUrl}/${endpoint}?api_key=${this.apiKey}&language=${this.language}`;
-
-                    try {
-                        const response = await fetch(url);
-                        const data = await response.json();
-                        this.genres = data.genres;
-                    } catch (error) {
-                        console.error('Error fetching genres:', error);
-                    }
-                },
+   async fetchGenres() {
+    const endpoint = this.currentTab === 'movies' ? 'genre/movie/list' : 'genre/tv/list';
+    const workerUrl = `https://tlk-worker.anivibra.workers.dev?path=${endpoint}&language=${this.language}`;
+    try {
+        const response = await fetch(workerUrl);
+        const data = await response.json();
+        this.genres = data.genres;
+    } catch (error) {
+        console.error('Error fetching genres:', error);
+    }
+},
 
                 getGenreName(genreId) {
                     const genre = this.genres.find(g => g.id === parseInt(genreId));
@@ -1133,18 +1104,18 @@
                 },
 
                 async fetchContent() {
-                    const baseUrl = 'https://api.themoviedb.org/3';
                     const endpoint = this.currentTab === 'movies' ? 'movie/popular' : 'tv/popular';
-                    const url = `${baseUrl}/${endpoint}?api_key=${this.apiKey}&language=${this.language}&page=${this.currentPage}`;
+const workerUrl = `https://tlk-worker.anivibra.workers.dev?path=${endpoint}&language=${this.language}&page=${this.currentPage}`;
 
-                    try {
-                        const response = await fetch(url);
-                        const data = await response.json();
-                        this.content = data.results;
-                        this.applyFilters();
-                    } catch (error) {
-                        console.error('Error fetching content:', error);
-                    }
+try {
+    const response = await fetch(workerUrl);
+    const data = await response.json();
+    this.content = data.results;
+    this.applyFilters();
+} catch (error) {
+    console.error('Error fetching content:', error);
+}
+
                 },
 
                 async searchContent() {
@@ -1153,8 +1124,13 @@
                         return;
                     }
 
-                    const baseUrl = 'https://api.themoviedb.org/3';
-                    const searchQuery = this.searchQuery.trim();
+                    const endpoint = this.currentTab === 'movies' ? 'movie' : 'tv';
+const workerUrl = `https://tlk-worker.anivibra.workers.dev?path=search/${endpoint}&language=${this.language}&page=${this.currentPage}&query=${encodeURIComponent(searchQuery)}`;
+
+const response = await fetch(workerUrl);
+const data = await response.json();
+this.content = data.results;
+
                     
                     if (searchQuery.startsWith('@')) {
                         const personName = searchQuery.substring(1);
@@ -1163,7 +1139,7 @@
                             return;
                         }
 
-                        const personUrl = `${baseUrl}/search/person?api_key=${this.apiKey}&query=${encodeURIComponent(personName)}`;
+const workerUrl = `https://tlk-worker.anivibra.workers.dev?path=search/person&query=${encodeURIComponent(personName)}&language=${this.language}`;
                         try {
                             const personResponse = await fetch(personUrl);
                             const personData = await personResponse.json();
@@ -1390,4 +1366,3 @@
 | |\  | (_) \ V / (_| |
 |_| \_|\___/ \_/ \__,_|
 -->
-
