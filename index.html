@@ -267,6 +267,7 @@
     <div x-show="localStorage.getItem('showParticles') !== 'false'" id="particles-js" class="fixed inset-0 pointer-events-none z-0"></div>
 
     <!-- navigation -->
+    <div x-data="app()">
     <nav class="fixed w-full z-50 glass-effect">
         <div class="container mx-auto px-6 py-3">
             <div class="flex items-center justify-between">
@@ -295,7 +296,6 @@
                                   class="bg-red-600 text-white text-xs flex items-center justify-center rounded-full w-6 h-6" 
                                   x-text="watchLaterCount"></span>
                         </button>
-                        
                     </div>
                 </div>
                 <div class="flex items-center space-x-4">
@@ -327,6 +327,42 @@
                     </button>
                 </div>
             </div>
+            
+            <!-- mobile menu -->
+            <div x-show="mobileMenu" 
+                x-transition:enter="transition ease-out duration-200"
+                x-transition:enter-start="opacity-0 transform -translate-y-2"
+                x-transition:enter-end="opacity-100 transform translate-y-0"
+                x-transition:leave="transition ease-in duration-150"
+                x-transition:leave-start="opacity-100 transform translate-y-0"
+                x-transition:leave-end="opacity-0 transform -translate-y-2"
+                class="md:hidden mt-4 pb-4">
+                <div class="flex flex-col space-y-4">
+                    <button @click="currentTab = currentTab === 'movies' ? 'shows' : 'movies'; mobileMenu = false" 
+                            class="text-left px-4 py-2 hover:bg-red-800 rounded-lg transition-colors">
+                        <span x-text="currentTab === 'movies' ? 'Switch to TV Shows' : 'Switch to Movies'"></span>
+                    </button>
+                    <a href="livesports.html" class="px-4 py-2 hover:bg-red-800 rounded-lg transition-colors">Live Sports</a>
+                    <button @click="showWatchLater = true; mobileMenu = false" 
+                            class="flex items-center justify-between px-4 py-2 hover:bg-red-800 rounded-lg transition-colors">
+                        <span>Watch Later</span>
+                        <span x-show="watchLaterCount > 0" 
+                              class="bg-red-600 text-white text-xs flex items-center justify-center rounded-full w-6 h-6" 
+                              x-text="watchLaterCount"></span>
+                    </button>
+                    <a href="settings.html" class="px-4 py-2 hover:bg-red-800 rounded-lg transition-colors flex items-center space-x-2">
+                        <span>Settings</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+</div>
+
             
             <!-- mobile menu -->
             <div x-show="mobileMenu" 
@@ -1118,75 +1154,75 @@ try {
 
                 },
 
-                async searchContent() {
-                    if (!this.searchQuery) {
-                        await this.applyFilters();
-                        return;
-                    }
+async searchContent() {
+    if (!this.searchQuery) {
+        await this.applyFilters();
+        return;
+    }
 
-                    const endpoint = this.currentTab === 'movies' ? 'movie' : 'tv';
-const workerUrl = `https://tlk-worker.anivibra.workers.dev?path=search/${endpoint}&language=${this.language}&page=${this.currentPage}&query=${encodeURIComponent(searchQuery)}`;
+    const endpoint = this.currentTab === 'movies' ? 'movie' : 'tv';
+    const workerUrl = `https://tlk-worker.anivibra.workers.dev?path=search/${endpoint}&language=${this.language}&page=${this.currentPage}&query=${encodeURIComponent(this.searchQuery)}`;
 
-const response = await fetch(workerUrl);
-const data = await response.json();
-this.content = data.results;
+    const response = await fetch(workerUrl);
+    const data = await response.json();
+    this.content = data.results;
 
-                    
-                    if (searchQuery.startsWith('@')) {
-                        const personName = searchQuery.substring(1);
-                        if (!personName) {
-                            await this.applyFilters();
-                            return;
-                        }
+    if (this.searchQuery.startsWith('@')) {
+        const personName = this.searchQuery.substring(1);
+        if (!personName) {
+            await this.applyFilters();
+            return;
+        }
 
-const workerUrl = `https://tlk-worker.anivibra.workers.dev?path=search/person&query=${encodeURIComponent(personName)}&language=${this.language}`;
-                        try {
-                            const personResponse = await fetch(personUrl);
-                            const personData = await personResponse.json();
-                            const person = personData.results[0];
-                            
-                            if (person) {
-                                const creditsUrl = `${baseUrl}/person/${person.id}/combined_credits?api_key=${this.apiKey}`;
-                                const creditsResponse = await fetch(creditsUrl);
-                                const creditsData = await creditsResponse.json();
-                                
-                                this.content = creditsData[this.currentTab === 'movies' ? 'cast' : 'crew']
-                                    .filter(item => this.currentTab === 'movies' ? item.media_type === 'movie' : item.media_type === 'tv')
-                                    .slice(0, 20);
-                            } else {
-                                this.content = [];
-                            }
-                        } catch (error) {
-                            console.error('Error searching person:', error);
-                            this.content = [];
-                        }
-                    } else {
-                        const endpoint = this.currentTab === 'movies' ? 'movie' : 'tv';
-                        const url = `${baseUrl}/search/${endpoint}?api_key=${this.apiKey}&query=${encodeURIComponent(searchQuery)}&language=${this.language}-${this.language.toUpperCase()}&page=${this.currentPage}`;
+        const workerUrl = `https://tlk-worker.anivibra.workers.dev?path=search/person&query=${encodeURIComponent(personName)}&language=${this.language}`;
+        try {
+            const personResponse = await fetch(workerUrl);
+            const personData = await personResponse.json();
+            const person = personData.results[0];
+            
+            if (person) {
+                const creditsUrl = `${baseUrl}/person/${person.id}/combined_credits?api_key=${this.apiKey}`;
+                const creditsResponse = await fetch(creditsUrl);
+                const creditsData = await creditsResponse.json();
+                
+                this.content = creditsData[this.currentTab === 'movies' ? 'cast' : 'crew']
+                    .filter(item => this.currentTab === 'movies' ? item.media_type === 'movie' : item.media_type === 'tv')
+                    .slice(0, 20);
+            } else {
+                this.content = [];
+            }
+        } catch (error) {
+            console.error('Error searching person:', error);
+            this.content = [];
+        }
+    } else {
+        const endpoint = this.currentTab === 'movies' ? 'movie' : 'tv';
+        const url = `${baseUrl}/search/${endpoint}?api_key=${this.apiKey}&query=${encodeURIComponent(this.searchQuery)}&language=${this.language}-${this.language.toUpperCase()}&page=${this.currentPage}`;
 
-                        try {
-                            const response = await fetch(url);
-                            const data = await response.json();
-                            this.content = data.results;
-                        } catch (error) {
-                            console.error('Error searching content:', error);
-                            this.content = [];
-                        }
-                    }
-                    
-            this.filteredContent = this.content.filter(item => {
-                if (this.selectedGenre && !item.genre_ids?.includes(parseInt(this.selectedGenre))) {
-                    return false;
-                }
-                if (this.minRating && item.vote_average < parseFloat(this.minRating)) {
-                    return false;
-                }
-                if (this.selectedLanguage && item.original_language !== this.selectedLanguage) {
-                    return false;
-                }
-                return true;
-            });
-        },
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            this.content = data.results;
+        } catch (error) {
+            console.error('Error searching content:', error);
+            this.content = [];
+        }
+    }
+
+    this.filteredContent = this.content.filter(item => {
+        if (this.selectedGenre && !item.genre_ids?.includes(parseInt(this.selectedGenre))) {
+            return false;
+        }
+        if (this.minRating && item.vote_average < parseFloat(this.minRating)) {
+            return false;
+        }
+        if (this.selectedLanguage && item.original_language !== this.selectedLanguage) {
+            return false;
+        }
+        return true;
+    });
+},
+
 
         async openContent(item) {
             this.selectedContent = item;
@@ -1358,11 +1394,3 @@ const workerUrl = `https://tlk-worker.anivibra.workers.dev?path=search/person&qu
 </script>
 </body>
 </html>
-
-<!--
- _   _                 
-| \ | | _____   ____ _ 
-|  \| |/ _ \ \ / / _` |
-| |\  | (_) \ V / (_| |
-|_| \_|\___/ \_/ \__,_|
--->
