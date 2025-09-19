@@ -1,59 +1,5 @@
 const availableSources = [
     {
-        id: 'mapple',
-        name: 'MappleTv',
-        isFrench: false,
-        urls: {
-            movie: 'https://mappletv.uk/watch/movie/{id}',
-            tv: 'https://mappletv.uk/watch/tv/{id}-{season}-{episode}'
-        }
-    },
-    {
-        id: 'pstream',
-        name: 'P-Stream',
-        isFrench: false,
-        urls: {
-            movie: 'https://iframe.pstream.mov/media/tmdb-movie-{id}',
-            tv: 'https://iframe.pstream.mov/media/tmdb-tv-{id}/{season}/{episode}'
-        }
-    },
-    {
-        id: 'multiembed',
-        name: 'MultiEmbed',
-        isFrench: false,
-        urls: {
-            movie: 'https://multiembed.mov/?video_id={id}&tmdb=1',
-            tv: 'https://multiembed.mov/?video_id={id}&tmdb=1&s={season}&e={episode}'
-        }
-    },
-    {
-        id: 'moviesapi',
-        name: 'MoviesAPI',
-        isFrench: false,
-        urls: {
-            movie: 'https://moviesapi.club/movie/{id}',
-            tv: 'https://moviesapi.club/tv/{id}-{season}-{episode}'
-        }
-    },
-    {
-        id: 'embedsu',
-        name: 'EmbedSU',
-        isFrench: false,
-        urls: {
-            movie: 'https://embed.su/embed/movie/{id}',
-            tv: 'https://embed.su/embed/tv/{id}/{season}/{episode}'
-        }
-    },
-    {
-        id: 'hexa',
-        name: 'Hexa',
-        isFrench: false,
-        urls: {
-            movie: 'https://hexa.watch/watch/movie/{id}',
-            tv: 'https://hexa.watch/watch/tv/{id}/{season}/{episode}'
-        }
-    },
-    {
         id: 'vidlink',
         name: 'VidLink',
         isFrench: false,
@@ -62,33 +8,7 @@ const availableSources = [
             tv: 'https://vidlink.pro/tv/{id}/{season}/{episode}'
         }
     },
-    {
-        id: 'vidsrcXyz',
-        name: 'VidSrcXyz',
-        isFrench: false,
-        urls: {
-            movie: 'https://vidsrc.xyz/embed/movie/{id}',
-            tv: 'https://vidsrc.xyz/embed/tv/{id}/{season}/{episode}'
-        }
-    },
-    {
-        id: 'vidsrcrip',
-        name: 'VidSrcRIP',
-        isFrench: false,
-        urls: {
-            movie: 'https://vidsrc.rip/embed/movie/{id}',
-            tv: 'https://vidsrc.rip/embed/tv/{id}/{season}/{episode}'
-        }
-    },
-    {
-        id: 'vidsrcsu',
-        name: 'VidSrcSU',
-        isFrench: false,
-        urls: {
-            movie: 'https://vidsrc.su/embed/movie/{id}',
-            tv: 'https://vidsrc.su/embed/tv/{id}/{season}/{episode}'
-        }
-    },
+
     {
         id: 'vidsrcvip',
         name: 'VidSrcVIP',
